@@ -4,7 +4,7 @@ import CS209A.project.demo.service.DataService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 @SpringBootApplication
 public class DemoApplication {
@@ -21,7 +21,6 @@ public class DemoApplication {
 
 	@PostConstruct
 	public void init() {
-		// 收集 Stack Overflow 数据并存储到数据库
-		dataService.collectData();
+//		dataService.collectData();
 	}
 }

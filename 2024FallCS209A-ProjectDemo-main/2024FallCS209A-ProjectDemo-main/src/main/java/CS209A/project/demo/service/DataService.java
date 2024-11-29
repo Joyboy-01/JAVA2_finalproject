@@ -5,8 +5,8 @@ import CS209A.project.demo.model.StackOverflowThread;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
@@ -14,37 +14,64 @@ import java.util.stream.Collectors;
 
 @Service
 public class DataService {
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final WebClient webClient;  // 使用 WebClient
     private final ThreadRepository threadRepository;
 
-    public DataService(ThreadRepository threadRepository) {
+    public DataService(ThreadRepository threadRepository, WebClient webClient) {
         this.threadRepository = threadRepository;
+        this.webClient = webClient;
     }
 
+    @Transactional
     public void collectData() {
-        String url = "https://api.stackexchange.com/2.3/questions?order=desc&sort=activity&tagged=java&site=stackoverflow&pagesize=100";
         ObjectMapper objectMapper = new ObjectMapper();
+        String url = "https://api.stackexchange.com/2.3/questions?order=desc&sort=activity&tagged=java&site=stackoverflow&pagesize=100";
 
         try {
-            for (int page = 1; page <= 10; page++) { // 收集 1000 个线程的数据，每页 100 个
+            for (int page = 1; page <= 10; page++) { // Fetch 1000 threads data
+                Thread.sleep(1000); // Request interval 1 second
                 String pagedUrl = url + "&page=" + page;
-                String response = restTemplate.getForObject(pagedUrl, String.class);
+
+                // Use WebClient to make the OAuth2 request
+                String response = webClient.get()
+                        .uri(pagedUrl)
+                        .retrieve()
+                        .bodyToMono(String.class)
+                        .block();  // block() 用于同步等待响应
+
+                System.out.println("Response: " + response); // Check response
+
+                // Handle empty or invalid response
+                if (response == null || response.isEmpty()) {
+                    System.out.println("No data received for page: " + page);
+                    continue;
+                }
+
                 JsonNode itemsNode = objectMapper.readTree(response).path("items");
 
+                if (itemsNode.isEmpty()) {
+                    System.out.println("No items found on page: " + page);
+                    continue;
+                }
+
+                // Process threads data
                 for (JsonNode item : itemsNode) {
                     StackOverflowThread thread = new StackOverflowThread();
                     thread.setTitle(item.path("title").asText());
-                    thread.setBody(item.path("body").asText(""));
+                    thread.setBody(item.path("body").asText("")); // Default to empty string
                     thread.setTags(String.join(",", new ObjectMapper().convertValue(item.path("tags"), List.class)));
                     thread.setVoteCount(item.path("score").asInt());
                     thread.setAnswerCount(item.path("answer_count").asInt());
                     thread.setCreatedAt(item.path("creation_date").asText());
 
+                    // Save thread to database
                     threadRepository.save(thread);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
