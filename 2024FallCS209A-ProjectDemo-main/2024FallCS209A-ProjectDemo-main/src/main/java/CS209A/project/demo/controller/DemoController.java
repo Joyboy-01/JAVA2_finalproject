@@ -32,12 +32,18 @@ public class DemoController {
 
     @GetMapping("/topic-frequency")
     public Map<String, Long> getTopicFrequency(@RequestParam(defaultValue = "10") int limit) {
-        return dataService.analyzeTopicFrequency(limit);
+        System.out.println("Fetching topic frequency with limit: " + limit);
+        Map<String, Long> topicFrequency = dataService.analyzeTopicFrequency(limit);
+        System.out.println("Topic frequency data: " + topicFrequency);
+        return topicFrequency;
     }
 
     @GetMapping("/most-voted-threads")
     public List<Map<String, Object>> getMostVotedThreads(@RequestParam(defaultValue = "5") int limit) {
-        return dataService.getMostVotedThreads(limit);
+        System.out.println("Fetching most voted threads with limit: " + limit);
+        List<Map<String, Object>> threads = dataService.getMostVotedThreads(limit);
+        System.out.println("Most voted threads data: " + threads);
+        return threads;
     }
 
     @GetMapping("/collect-data")

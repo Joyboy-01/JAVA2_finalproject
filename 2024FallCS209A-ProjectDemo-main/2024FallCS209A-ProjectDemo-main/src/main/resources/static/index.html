@@ -7,86 +7,89 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-<!-- 饼图显示 piechartRaw 数据 -->
+<!-- 饼图显示 Answer Quality 数据 -->
 <h2>Pie Chart - Answer Quality</h2>
-<canvas id="pieChart"></canvas>
+<canvas id="pieChart" width="400" height="400"></canvas>
 
-<!-- 柱状图显示 tagCountMap 数据 -->
+<!-- 柱状图显示 Topic Tag Count 数据 -->
 <h2>Bar Chart - Topic Tag Count</h2>
-<canvas id="tagChart"></canvas>
+<canvas id="tagChart" width="400" height="400"></canvas>
 
 <script>
-    // Pie Chart: Displaying piechartRaw data
-    const piechartRaw = {"1": 44, "0": 39, "5": 1, "3": 3, "2": 8, "4": 2, "6": 2, "9": 1};
-    const pieLabels = Object.keys(piechartRaw);
-    const pieValues = Object.values(piechartRaw);
+    // 动态获取饼图数据（Answer Quality）
+    fetch('http://localhost:9091/api/topic-frequency')  <!-- 修改为后端的完整 URL -->
+        .then(response => response.json())
+        .then(data => {
+            const pieLabels = Object.keys(data);
+            const pieValues = Object.values(data);
 
-    new Chart(document.getElementById('pieChart'), {
-        type: 'pie',
-        data: {
-            labels: pieLabels,
-            datasets: [{
-                label: 'Answer Quality',
-                data: pieValues,
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)',
-                    'rgba(99, 255, 132, 0.2)',
-                    'rgba(132, 99, 255, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)',
-                    'rgba(99, 255, 132, 1)',
-                    'rgba(132, 99, 255, 1)'
-                ],
-                borderWidth: 1
-            }]
-        }
-    });
+            new Chart(document.getElementById('pieChart'), {
+                type: 'pie',
+                data: {
+                    labels: pieLabels,
+                    datasets: [{
+                        label: 'Answer Quality',
+                        data: pieValues,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)',
+                            'rgba(99, 255, 132, 0.2)',
+                            'rgba(132, 99, 255, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(99, 255, 132, 1)',
+                            'rgba(132, 99, 255, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                }
+            });
+        })
+        .catch(error => console.error('Error fetching topic frequency data:', error));
+// 动态获取柱状图数据（Topic Tag Count）
+fetch('http://localhost:9091/api/most-voted-threads')  // 确保后端的 URL 是正确的
+    .then(response => response.json())  // 解析响应数据为 JSON
+    .then(data => {
+        // 数据格式为 [{ "answerCount": 65, "voteCount": 1933, "title": "question_title" }, ...]
 
-    // Bar Chart: Displaying tagCountMap data
-    const tagCountMap = {
-        "apache-kafka": 3,
-        "android-studio": 3,
-        "integration": 2,
-        "jsp": 2,
-        "code-generation": 1,
-        "jaxb": 1,
-        "dart": 1,
-        "selenium": 1,
-    };
-    const tagLabels = Object.keys(tagCountMap);
-    const tagValues = Object.values(tagCountMap);
+        // 从返回的数据中提取标题（作为标签）和投票数
+        const tagLabels = data.map(thread => thread.title);  // 提取所有问题标题作为标签
+        const tagValues = data.map(thread => thread.voteCount);  // 提取每个问题的投票数
 
-    new Chart(document.getElementById('tagChart'), {
-        type: 'bar',
-        data: {
-            labels: tagLabels,
-            datasets: [{
-                label: 'Tag Frequency',
-                data: tagValues,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
+        // 创建柱状图
+        new Chart(document.getElementById('tagChart'), {
+            type: 'bar',
+            data: {
+                labels: tagLabels,  // x轴标签是问题的标题
+                datasets: [{
+                    label: 'Vote Count',
+                    data: tagValues,  // y轴数据是投票数
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',  // 柱子的背景色
+                    borderColor: 'rgba(75, 192, 192, 1)',  // 柱子的边框色
+                    borderWidth: 1  // 边框宽度
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true  // y轴从0开始
+                    }
                 }
             }
-        }
-    });
+        });
+    })
+    .catch(error => console.error('Error fetching most voted threads data:', error));  // 错误处理
+
 </script>
 </body>
 </html>

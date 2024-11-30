@@ -22,6 +22,6 @@ public class DemoApplication {
 	@PostConstruct
 	public void init() {
 		// 收集 Stack Overflow 数据并存储到数据库
-		dataService.collectData();
+//		dataService.collectData();
 	}
 }

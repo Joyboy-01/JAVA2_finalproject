@@ -4,6 +4,8 @@ import CS209A.project.demo.repository.ThreadRepository;
 import CS209A.project.demo.model.StackOverflowThread;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -74,21 +76,31 @@ public class DataService {
             throw new RuntimeException(e);
         }
     }
-
     public Map<String, Long> analyzeTopicFrequency(int limit) {
-        return threadRepository.findAll().stream()
-                .flatMap(thread -> Arrays.stream(thread.getTags().split(",")))
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+        // 分页查询，防止一次性加载所有数据
+        Pageable pageable = PageRequest.of(0, 1000);  // 假设一次查询1000条数据
+        List<StackOverflowThread> threads = threadRepository.findAll(pageable).getContent();
+
+        // 使用 flatMap 对 tags 进行处理，并统计频率
+        return threads.stream()
+                .flatMap(thread -> Arrays.stream(thread.getTags().split(","))) // 将tags字符串按逗号分割并转换成流
+                .filter(tag -> !tag.trim().isEmpty())  // 清理空白标签
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())) // 统计频率
                 .entrySet().stream()
-                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                .limit(limit)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed()) // 按频率降序排序
+                .limit(limit) // 取前limit个
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new)); // 使用 LinkedHashMap 保持顺序
     }
 
     public List<Map<String, Object>> getMostVotedThreads(int limit) {
-        return threadRepository.findAll().stream()
-                .sorted((t1, t2) -> Integer.compare(t2.getVoteCount(), t1.getVoteCount()))
-                .limit(limit)
+        // 分页查询获取投票最多的线程
+        Pageable pageable = PageRequest.of(0, 1000);  // 假设一次查询1000条数据
+        List<StackOverflowThread> threads = threadRepository.findAll(pageable).getContent();
+
+        // 如果是大量数据，可以通过数据库排序来减少内存使用
+        return threads.stream()
+                .sorted(Comparator.comparingInt(StackOverflowThread::getVoteCount).reversed()) // 以投票数降序排序
+                .limit(limit) // 限制返回的数量
                 .map(thread -> {
                     Map<String, Object> map = new HashMap<>();
                     map.put("title", thread.getTitle());
@@ -98,4 +110,5 @@ public class DataService {
                 })
                 .collect(Collectors.toList());
     }
+
 }
