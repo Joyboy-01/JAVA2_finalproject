@@ -34,12 +34,12 @@ public class StackExchangeAPI {
     }
 
     public String fetchVotesForQuestion(Long questionId) {
-        String url = "/questions/" + questionId + "/votes?order=desc&sort=creation&site=stackoverflow";
+        String url = "/questions/" + questionId + "/answers?order=desc&sort=creation&site=stackoverflow";
         return makeApiCall(url);
     }
 
     public String fetchVotes(Long postId) {
-        String url = "/answers/" + postId + "/votes?site=stackoverflow";
+        String url = "/answers/" + postId + "?site=stackoverflow";
         return makeApiCall(url);
     }
 
