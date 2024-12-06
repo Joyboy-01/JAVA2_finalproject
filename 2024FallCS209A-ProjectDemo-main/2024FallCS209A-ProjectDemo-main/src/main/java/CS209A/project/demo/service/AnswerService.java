@@ -1,18 +1,54 @@
+// CS209A/project/demo/service/AnswerService.java
+
 package CS209A.project.demo.service;
 
 import CS209A.project.demo.entity.Answer;
 import CS209A.project.demo.repository.AnswerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.List;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AnswerService {
-    private final AnswerRepository repo;
-    public AnswerService(AnswerRepository repo) {
-        this.repo = repo;
+
+    @Autowired
+    private AnswerRepository answerRepository;
+
+    /**
+     * 获取最常见的 Java 编程相关话题及其频次
+     * @param topN 要返回的最常见话题数量
+     * @return 一个 Map，其中键是话题名称，值是频次
+     */
+    public Map<String, Integer> getTopJavaTopics(int topN) {
+        List<Answer> answers = answerRepository.findAll();
+
+        return answers.stream()
+                .filter(answer -> answer.getContent() != null && answer.getContent().contains("Java"))
+                .map(answer -> {
+                    String content = answer.getContent();
+                    // 安全地提取内容的前20个字符作为话题
+                    return content.length() > 20 ? content.substring(0, 20) : content;
+                })
+                .collect(Collectors.groupingBy(topic -> topic, Collectors.reducing(0, e -> 1, Integer::sum)))
+                .entrySet()
+                .stream()
+                .sorted((e1, e2) -> Integer.compare(e2.getValue(), e1.getValue()))
+                .limit(topN)
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new
+                ));
     }
-    public List<Answer> findAll(){return repo.findAll();}
-    public Answer save(Answer a){return repo.save(a);}
-    public Answer findById(Long id){return repo.findById(id).orElse(null);}
-    public void delete(Long id){repo.deleteById(id);}
+
+    /**
+     * 获取所有答案
+     * @return 所有答案的列表
+     */
+    public List<Answer> getAllAnswers() {
+        return answerRepository.findAll();
+    }
 }

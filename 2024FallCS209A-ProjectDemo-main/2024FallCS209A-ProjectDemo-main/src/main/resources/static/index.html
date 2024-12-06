@@ -6,42 +6,52 @@
     <title>StackOverflow Data Visualization</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* 隐藏图表容器，直到按钮被点击 */
-        #pieChartContainer, #tagChartContainer {
-            display: none;
+        /* 直接显示图表 */
+        #pieChartContainer {
+            display: block;  /* 直接显示 */
         }
     </style>
 </head>
 <body>
-<!-- 按钮点击显示饼图 -->
-<h2>Click to Show Pie Chart - Answer Quality</h2>
-<button onclick="showPieChart()">Show Pie Chart</button>
+<!-- 直接显示饼图 -->
+<h2>Java Topics Pie Chart</h2>
 <div id="pieChartContainer">
     <canvas id="pieChart" width="400" height="400"></canvas>
 </div>
 
-<!-- 按钮点击显示柱状图 -->
-<h2>Click to Show Bar Chart - Topic Tag Count</h2>
-<button onclick="showBarChart()">Show Bar Chart</button>
-<div id="tagChartContainer">
-    <canvas id="tagChart" width="400" height="400"></canvas>
-</div>
-
 <script>
-    // 动态获取饼图数据（Answer Quality）
-    fetch('http://localhost:9091/api/topic-frequency')  <!-- 修改为后端的完整 URL -->
-        .then(response => response.json())
+    let pieChartInstance;
+
+    // 动态获取饼图数据（Java 话题）
+    fetch('http://localhost:9091/answers/api/java-topics')  // 确保使用正确的 URL
+         .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+            }
+            return response.json();  // 直接解析为 JSON
+        })
         .then(data => {
+            console.log('Fetched Data:', data);  // 在控制台查看返回的数据
+
+            if (typeof data !== 'object' || data === null) {
+                throw new Error('Invalid data format');
+            }
+
             const pieLabels = Object.keys(data);
             const pieValues = Object.values(data);
 
-            // 饼图
-            window.pieChartInstance = new Chart(document.getElementById('pieChart'), {
+            // 如果图表已存在，销毁旧图表
+            if (pieChartInstance) {
+                pieChartInstance.destroy();
+            }
+
+            // 创建饼图
+            pieChartInstance = new Chart(document.getElementById('pieChart'), {
                 type: 'pie',
                 data: {
                     labels: pieLabels,
                     datasets: [{
-                        label: 'Answer Quality',
+                        label: 'Java Topics Frequency',
                         data: pieValues,
                         backgroundColor: [
                             'rgba(255, 99, 132, 0.2)',
@@ -65,51 +75,26 @@
                         ],
                         borderWidth: 1
                     }]
-                }
-            });
-        })
-        .catch(error => console.error('Error fetching topic frequency data:', error));
-
-    // 动态获取柱状图数据（Topic Tag Count）
-    fetch('http://localhost:9091/api/most-voted-threads')  // 确保后端的 URL 是正确的
-        .then(response => response.json())  // 解析响应数据为 JSON
-        .then(data => {
-            const tagLabels = data.map(thread => thread.title);  // 提取所有问题标题作为标签
-            const tagValues = data.map(thread => thread.voteCount);  // 提取每个问题的投票数
-
-            // 创建柱状图
-            window.barChartInstance = new Chart(document.getElementById('tagChart'), {
-                type: 'bar',
-                data: {
-                    labels: tagLabels,  // x轴标签是问题的标题
-                    datasets: [{
-                        label: 'Vote Count',
-                        data: tagValues,  // y轴数据是投票数
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',  // 柱子的背景色
-                        borderColor: 'rgba(75, 192, 192, 1)',  // 柱子的边框色
-                        borderWidth: 1  // 边框宽度
-                    }]
                 },
                 options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true  // y轴从0开始
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Most Common Java Topics'
                         }
                     }
                 }
             });
         })
-        .catch(error => console.error('Error fetching most voted threads data:', error));
-
-    // 显示饼图
-    function showPieChart() {
-        document.getElementById('pieChartContainer').style.display = 'block';
-    }
-
-    // 显示柱状图
-    function showBarChart() {
-        document.getElementById('tagChartContainer').style.display = 'block';
-    }
+        .catch(error => {
+            console.error('Error fetching topic frequency data:', error);
+            alert('Failed to load data or render chart: ' + error.message);  // 弹出错误提示
+        });
 </script>
+
 </body>
 </html>
