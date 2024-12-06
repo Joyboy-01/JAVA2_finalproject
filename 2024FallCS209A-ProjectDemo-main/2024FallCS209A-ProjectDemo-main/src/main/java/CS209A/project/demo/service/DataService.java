@@ -1,7 +1,7 @@
 package CS209A.project.demo.service;
 
 import CS209A.project.demo.repository.ThreadRepository;
-import CS209A.project.demo.model.StackOverflowThread;
+import CS209A.project.demo.entity.StackOverflowThread;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.domain.PageRequest;

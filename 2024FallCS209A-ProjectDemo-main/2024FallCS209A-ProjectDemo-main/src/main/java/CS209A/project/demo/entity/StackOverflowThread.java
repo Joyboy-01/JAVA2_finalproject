@@ -1,4 +1,4 @@
-package CS209A.project.demo.model;
+package CS209A.project.demo.entity;
 
 import jakarta.persistence.*;
 

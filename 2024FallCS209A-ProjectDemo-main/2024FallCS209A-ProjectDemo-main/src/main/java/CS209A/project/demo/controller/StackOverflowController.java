@@ -1,22 +1,21 @@
 package CS209A.project.demo.controller;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import CS209A.project.demo.service.DataService;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+
 import java.util.Map;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-public class DemoController {
+public class StackOverflowController {
 
     private final DataService dataService;
 
-    public DemoController(DataService dataService) {
+    public StackOverflowController(DataService dataService) {
         this.dataService = dataService;
     }
 
