@@ -25,7 +25,6 @@ public class StackOverflowCrawler {
     private final AnswerRepository answerRepository;
     private final VoteRepository voteRepository;
     private final QuestionTagRepository questionTagRepository;
-    private final ErrorRepository errorRepository;
     private final CommentRepository commentRepository;
     private final APILogRepository apiLogRepository;
 
@@ -40,7 +39,6 @@ public class StackOverflowCrawler {
                                 AnswerRepository answerRepository,
                                 VoteRepository voteRepository,
                                 QuestionTagRepository questionTagRepository,
-                                ErrorRepository errorRepository,
                                 CommentRepository commentRepository,
                                 APILogRepository apiLogRepository) {
         this.stackExchangeAPI = stackExchangeAPI;
@@ -49,7 +47,6 @@ public class StackOverflowCrawler {
         this.answerRepository = answerRepository;
         this.voteRepository = voteRepository;
         this.questionTagRepository = questionTagRepository;
-        this.errorRepository = errorRepository;
         this.commentRepository = commentRepository;
         this.apiLogRepository = apiLogRepository;
     }
@@ -379,18 +376,6 @@ public class StackOverflowCrawler {
 
     private void handleError(Exception e, JsonNode node) {
         e.printStackTrace();
-        ErrorEntity error = new ErrorEntity();
-        if (node != null) {
-            if (node.has("question_id")) {
-                error.setPostId(node.path("question_id").asLong());
-            } else if (node.has("answer_id")) {
-                error.setPostId(node.path("answer_id").asLong());
-            } else if (node.has("comment_id")) {
-                error.setPostId(node.path("comment_id").asLong());
-            }
-        }
-        error.setErrorType(e.getClass().getSimpleName());
-        error.setDescription(e.getMessage());
-        errorRepository.save(error);
+        System.err.println(e);
     }
 }

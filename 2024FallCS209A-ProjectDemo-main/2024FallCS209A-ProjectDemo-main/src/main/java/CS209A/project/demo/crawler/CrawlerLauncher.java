@@ -34,7 +34,6 @@ public class CrawlerLauncher implements CommandLineRunner {
         deleteFromTable("answers");
         deleteFromTable("apilogs");
         deleteFromTable("comments");
-        deleteFromTable("errors");
         deleteFromTable("question_tags");
         deleteFromTable("questions");
         deleteFromTable("stack_overflow_thread");

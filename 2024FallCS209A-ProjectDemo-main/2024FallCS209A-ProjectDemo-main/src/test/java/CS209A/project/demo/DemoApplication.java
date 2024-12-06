@@ -1,6 +1,5 @@
 package CS209A.project.demo;
 
-import CS209A.project.demo.service.DataService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
