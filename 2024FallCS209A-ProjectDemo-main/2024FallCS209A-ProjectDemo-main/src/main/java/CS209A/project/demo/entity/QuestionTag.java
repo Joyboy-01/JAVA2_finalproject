@@ -25,9 +25,10 @@ public class QuestionTag {
         @Column(name = "question_id")
         private Long questionId;
 
-
-        @Column(name = "tag", length = 1000)
+        @Column(name = "tag", length = 255)  // 保留原长度
         private String tag;
+
+
 
         // Getters and Setters
 

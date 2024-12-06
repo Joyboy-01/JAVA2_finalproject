@@ -11,7 +11,7 @@ public class Question {
     private Long questionId;
 
     private String title;
-    @Column(name = "content", length = 5000)
+    @Column(name = "content",  columnDefinition = "TEXT")
     private String content;
 
     @Column(name = "creation_date")

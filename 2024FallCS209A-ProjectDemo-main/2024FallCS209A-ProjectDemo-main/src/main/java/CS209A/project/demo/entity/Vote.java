@@ -1,30 +1,30 @@
 package CS209A.project.demo.entity;
 
-
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Votes")
 public class Vote {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "vote_id")
     private Long voteId;
 
     @Column(name = "post_id")
-    private Long postId;
+    private Long postId;  // 关联的帖子ID（问题或答案）
 
     @Column(name = "user_id")
-    private Long userId;
+    private Long userId;  // 进行投票的用户ID
 
     @Column(name = "vote_type")
-    private String voteType;
+    private String voteType;  // 投票类型（upvote, downvote）
 
     @Column(name = "vote_date")
-    private LocalDateTime voteDate;
+    private LocalDateTime voteDate;  // 投票的时间
 
-    // Getters, Setters
+    // Getters 和 Setters
 
     public Long getVoteId() {
         return voteId;
@@ -34,20 +34,12 @@ public class Vote {
         this.voteId = voteId;
     }
 
-    public LocalDateTime getVoteDate() {
-        return voteDate;
+    public Long getPostId() {
+        return postId;
     }
 
-    public void setVoteDate(LocalDateTime voteDate) {
-        this.voteDate = voteDate;
-    }
-
-    public String getVoteType() {
-        return voteType;
-    }
-
-    public void setVoteType(String voteType) {
-        this.voteType = voteType;
+    public void setPostId(Long postId) {
+        this.postId = postId;
     }
 
     public Long getUserId() {
@@ -58,11 +50,19 @@ public class Vote {
         this.userId = userId;
     }
 
-    public Long getPostId() {
-        return postId;
+    public String getVoteType() {
+        return voteType;
     }
 
-    public void setPostId(Long postId) {
-        this.postId = postId;
+    public void setVoteType(String voteType) {
+        this.voteType = voteType;
+    }
+
+    public LocalDateTime getVoteDate() {
+        return voteDate;
+    }
+
+    public void setVoteDate(LocalDateTime voteDate) {
+        this.voteDate = voteDate;
     }
 }

@@ -15,7 +15,7 @@ public class ErrorEntity {
 
     @Column(name = "error_type")
     private String errorType;
-    @Column(name = "description", length = 5000)
+    @Column(name = "description",  columnDefinition = "TEXT")
     private String description;
 
     // Getters, Setters

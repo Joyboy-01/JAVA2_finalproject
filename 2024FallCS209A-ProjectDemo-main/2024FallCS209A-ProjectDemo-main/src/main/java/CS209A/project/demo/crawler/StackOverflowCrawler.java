@@ -64,7 +64,7 @@ public class StackOverflowCrawler {
                 processQuestions(questionsResponse);
 
                 // 控制爬取速度，避免被限流
-                Thread.sleep(2000);
+                Thread.sleep(3000);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -289,8 +289,11 @@ public class StackOverflowCrawler {
             if (userNode.has("user_id")) {
                 userId = userNode.path("user_id").asLong();
                 String userResponse = stackExchangeAPI.fetchUser(userId);
-                logApiCall("fetchUser", userResponse);
-                processUser(userResponse);
+
+                if (userResponse != null) {
+                    logApiCall("fetchUser", userResponse);
+                    processUser(userResponse);
+                }
             }
 
             // 保存投票信息
@@ -311,11 +314,11 @@ public class StackOverflowCrawler {
             handleError(e, voteNode);
         }
     }
-
     private void processUser(String response) {
         if (response == null || response.isEmpty()) {
-            System.out.println("Received empty or null response.");
-            System.out.println("Received response: " + response);
+            // 处理空响应的情况
+            System.out.println("Userrrrrrrr null response.");
+            System.out.println("User: " + response);
 
             return; // 退出方法
         }
@@ -361,10 +364,6 @@ public class StackOverflowCrawler {
     }
 
     private void logApiCall(String action, String response) {
-        if (response == null || response.isEmpty()) {
-            System.out.println("Received empty or null response.");
-            return; // 退出方法
-        }
         try {
             APILog apiLog = new APILog();
             apiLog.setAction(action);

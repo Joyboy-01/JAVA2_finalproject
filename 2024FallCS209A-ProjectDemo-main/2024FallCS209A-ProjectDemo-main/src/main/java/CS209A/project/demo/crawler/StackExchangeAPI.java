@@ -39,7 +39,7 @@ public class StackExchangeAPI {
     }
 
     public String fetchVotes(Long postId) {
-        String url = "/posts/" + postId + "/votes?site=stackoverflow";
+        String url = "/answers/" + postId + "/votes?site=stackoverflow";
         return makeApiCall(url);
     }
 

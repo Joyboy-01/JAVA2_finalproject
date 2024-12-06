@@ -17,7 +17,7 @@ public class Comment {
 
     @Column(name = "user_id")
     private Long userId;
-    @Column(name = "response", length = 1000)
+    @Column(name = "response",  columnDefinition = "TEXT")
     private String content;
 
     @Column(name = "creation_date")
