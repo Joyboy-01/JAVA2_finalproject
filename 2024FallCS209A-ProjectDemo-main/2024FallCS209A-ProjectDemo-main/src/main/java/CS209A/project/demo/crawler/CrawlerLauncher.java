@@ -6,9 +6,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 @SpringBootApplication
 @ComponentScan(basePackages = "CS209A.project.demo")
+@Profile("crawler")
 public class CrawlerLauncher implements CommandLineRunner {
 
     private final StackOverflowCrawler stackOverflowCrawler;
@@ -21,18 +23,14 @@ public class CrawlerLauncher implements CommandLineRunner {
     }
 
     @Override
-    @Transactional  // 确保删除操作和爬取操作在同一事务中
+    @Transactional
     public void run(String... args) throws Exception {
-        // 清空数据库中的相关数据
         clearDatabase();
-
-        // 开始爬取数据
         stackOverflowCrawler.collectData();
     }
 
     // 删除数据库中的所有表的数据
     private void clearDatabase() {
-        // 清空每个表的数据
         deleteFromTable("answers");
         deleteFromTable("apilogs");
         deleteFromTable("comments");

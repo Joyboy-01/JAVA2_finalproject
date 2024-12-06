@@ -20,7 +20,7 @@ public class Answer {
     private LocalDateTime creationDate;
 
     @Column(name = "user_id")
-    private Long userId;
+    private Long userId; 
 
     @Column(name = "is_accepted")
     private Boolean isAccepted;

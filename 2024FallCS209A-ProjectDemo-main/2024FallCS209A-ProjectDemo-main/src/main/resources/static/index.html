@@ -5,15 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StackOverflow Data Visualization</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* 隐藏图表容器，直到按钮被点击 */
+        #pieChartContainer, #tagChartContainer {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<!-- 饼图显示 Answer Quality 数据 -->
-<h2>Pie Chart - Answer Quality</h2>
-<canvas id="pieChart" width="400" height="400"></canvas>
+<!-- 按钮点击显示饼图 -->
+<h2>Click to Show Pie Chart - Answer Quality</h2>
+<button onclick="showPieChart()">Show Pie Chart</button>
+<div id="pieChartContainer">
+    <canvas id="pieChart" width="400" height="400"></canvas>
+</div>
 
-<!-- 柱状图显示 Topic Tag Count 数据 -->
-<h2>Bar Chart - Topic Tag Count</h2>
-<canvas id="tagChart" width="400" height="400"></canvas>
+<!-- 按钮点击显示柱状图 -->
+<h2>Click to Show Bar Chart - Topic Tag Count</h2>
+<button onclick="showBarChart()">Show Bar Chart</button>
+<div id="tagChartContainer">
+    <canvas id="tagChart" width="400" height="400"></canvas>
+</div>
 
 <script>
     // 动态获取饼图数据（Answer Quality）
@@ -23,7 +35,8 @@
             const pieLabels = Object.keys(data);
             const pieValues = Object.values(data);
 
-            new Chart(document.getElementById('pieChart'), {
+            // 饼图
+            window.pieChartInstance = new Chart(document.getElementById('pieChart'), {
                 type: 'pie',
                 data: {
                     labels: pieLabels,
@@ -56,40 +69,47 @@
             });
         })
         .catch(error => console.error('Error fetching topic frequency data:', error));
-// 动态获取柱状图数据（Topic Tag Count）
-fetch('http://localhost:9091/api/most-voted-threads')  // 确保后端的 URL 是正确的
-    .then(response => response.json())  // 解析响应数据为 JSON
-    .then(data => {
-        // 数据格式为 [{ "answerCount": 65, "voteCount": 1933, "title": "question_title" }, ...]
 
-        // 从返回的数据中提取标题（作为标签）和投票数
-        const tagLabels = data.map(thread => thread.title);  // 提取所有问题标题作为标签
-        const tagValues = data.map(thread => thread.voteCount);  // 提取每个问题的投票数
+    // 动态获取柱状图数据（Topic Tag Count）
+    fetch('http://localhost:9091/api/most-voted-threads')  // 确保后端的 URL 是正确的
+        .then(response => response.json())  // 解析响应数据为 JSON
+        .then(data => {
+            const tagLabels = data.map(thread => thread.title);  // 提取所有问题标题作为标签
+            const tagValues = data.map(thread => thread.voteCount);  // 提取每个问题的投票数
 
-        // 创建柱状图
-        new Chart(document.getElementById('tagChart'), {
-            type: 'bar',
-            data: {
-                labels: tagLabels,  // x轴标签是问题的标题
-                datasets: [{
-                    label: 'Vote Count',
-                    data: tagValues,  // y轴数据是投票数
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',  // 柱子的背景色
-                    borderColor: 'rgba(75, 192, 192, 1)',  // 柱子的边框色
-                    borderWidth: 1  // 边框宽度
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true  // y轴从0开始
+            // 创建柱状图
+            window.barChartInstance = new Chart(document.getElementById('tagChart'), {
+                type: 'bar',
+                data: {
+                    labels: tagLabels,  // x轴标签是问题的标题
+                    datasets: [{
+                        label: 'Vote Count',
+                        data: tagValues,  // y轴数据是投票数
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',  // 柱子的背景色
+                        borderColor: 'rgba(75, 192, 192, 1)',  // 柱子的边框色
+                        borderWidth: 1  // 边框宽度
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true  // y轴从0开始
+                        }
                     }
                 }
-            }
-        });
-    })
-    .catch(error => console.error('Error fetching most voted threads data:', error));  // 错误处理
+            });
+        })
+        .catch(error => console.error('Error fetching most voted threads data:', error));
 
+    // 显示饼图
+    function showPieChart() {
+        document.getElementById('pieChartContainer').style.display = 'block';
+    }
+
+    // 显示柱状图
+    function showBarChart() {
+        document.getElementById('tagChartContainer').style.display = 'block';
+    }
 </script>
 </body>
 </html>

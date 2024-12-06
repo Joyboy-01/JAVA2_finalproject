@@ -1,5 +1,6 @@
 package CS209A.project.demo.crawler;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -10,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component
+@Profile("crawler")
 public class StackExchangeAPI {
     private final WebClient webClient;
     private static final Logger logger = Logger.getLogger(StackExchangeAPI.class.getName());
@@ -63,13 +65,8 @@ public class StackExchangeAPI {
                         logError(e, url);
                         return Mono.empty();
                     })
-                    .block(); // 请注意：这里是同步调用，如果你在一个异步环境中使用，建议改用异步方式
-        } catch (WebClientResponseException e) {
-            // 捕获 API 响应异常，记录详细的错误信息
-            logError(e, url);
-            return null;
+                    .block();
         } catch (Exception e) {
-            // 捕获其他异常
             logError(e, url);
             return null;
         }
@@ -77,8 +74,7 @@ public class StackExchangeAPI {
 
     // 增强的错误日志记录
     private void logError(Throwable e, String url) {
-        if (e instanceof WebClientResponseException) {
-            WebClientResponseException we = (WebClientResponseException) e;
+        if (e instanceof WebClientResponseException we) {
             logger.log(Level.SEVERE, "API call failed for URL: " + url + " with status: "
                     + we.getRawStatusCode() + " and message: " + we.getResponseBodyAsString());
         } else {
