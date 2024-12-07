@@ -107,6 +107,7 @@ public class StackOverflowCrawler {
             }
 
             // 保存问题信息
+
             Question question = questionRepository.findById(questionId).orElse(new Question());
 //            question.setQuestionId(questionId);
             question.setExternalQuestionId(questionId);
@@ -188,6 +189,8 @@ public class StackOverflowCrawler {
             }
 
             // 保存回答信息
+            System.out.println(answerId);
+            System.out.println(questionId);
             Answer answer = answerRepository.findById(answerId).orElse(new Answer());
 //            answer.setAnswerId(answerId);
             answer.setExternalAnswerId(answerId);
