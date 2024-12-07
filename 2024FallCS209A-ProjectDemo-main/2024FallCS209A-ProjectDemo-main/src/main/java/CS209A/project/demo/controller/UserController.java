@@ -14,23 +14,28 @@ public class UserController {
         this.service = service;
     }
 
-    @GetMapping
-    public List<User> allUsers() {
-        return service.findAll();
+    @GetMapping("/HighRe")
+    public List<User> getUser() {
+        return service.getHighReputationUsers(100000);
     }
 
-    @GetMapping("/{id}")
-    public User getUser(@PathVariable Long id) {
-        return service.findById(id);
-    }
-
-    @PostMapping
-    public User create(@RequestBody User user) {
-        return service.save(user);
-    }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        service.delete(id);
-    }
+//    @GetMapping
+//    public List<User> allUsers() {
+//        return service.findAll();
+//    }
+//
+//    @GetMapping("/{id}")
+//    public User getUser(@PathVariable Long id) {
+//        return service.findById(id);
+//    }
+//
+//    @PostMapping
+//    public User create(@RequestBody User user) {
+//        return service.save(user);
+//    }
+//
+//    @DeleteMapping("/{id}")
+//    public void delete(@PathVariable Long id) {
+//        service.delete(id);
+//    }
 }

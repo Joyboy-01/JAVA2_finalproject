@@ -14,12 +14,12 @@ public class VoteController {
         this.service = service;
     }
 
-    @GetMapping
-    public List<Vote> all(){return service.findAll();}
-    @GetMapping("/{id}")
-    public Vote get(@PathVariable Long id){return service.findById(id);}
-    @PostMapping
-    public Vote create(@RequestBody Vote v){return service.save(v);}
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id){service.delete(id);}
+//    @GetMapping
+//    public List<Vote> all(){return service.findAll();}
+//    @GetMapping("/{id}")
+//    public Vote get(@PathVariable Long id){return service.findById(id);}
+//    @PostMapping
+//    public Vote create(@RequestBody Vote v){return service.save(v);}
+//    @DeleteMapping("/{id}")
+//    public void delete(@PathVariable Long id){service.delete(id);}
 }

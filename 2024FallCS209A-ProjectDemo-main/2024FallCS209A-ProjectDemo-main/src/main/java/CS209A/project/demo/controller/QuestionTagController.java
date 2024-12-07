@@ -13,7 +13,7 @@ public class QuestionTagController {
         this.service = service;
     }
 
-    @GetMapping
-    public List<QuestionTag> all(){return service.findAll();}
+//    @GetMapping
+//    public List<QuestionTag> all(){return service.findAll();}
     // 根据业务需求决定查询和删除的方式，此处略
 }
