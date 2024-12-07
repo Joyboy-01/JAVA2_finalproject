@@ -189,8 +189,8 @@ public class StackOverflowCrawler {
             }
 
             // 保存回答信息
-            System.out.println(answerId);
-            System.out.println(questionId);
+//            System.out.println(answerId);
+//            System.out.println(questionId);
             Answer answer = answerRepository.findById(answerId).orElse(new Answer());
 //            answer.setAnswerId(answerId);
             answer.setExternalAnswerId(answerId);
