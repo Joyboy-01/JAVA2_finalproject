@@ -12,6 +12,9 @@ public class Comment {
     @Column(name = "comment_id")
     private Long commentId;
 
+
+    @Column(name = "external_comment_id")
+    private Long externalCommentId;
     @Column(name = "post_id")
     private Long postId;
 
@@ -24,6 +27,14 @@ public class Comment {
     private LocalDateTime creationDate;
 
     // Getters, Setters
+
+    public Long getExternalCommentId() {
+        return externalCommentId;
+    }
+
+    public void setExternalCommentId(Long externalCommentId) {
+        this.externalCommentId = externalCommentId;
+    }
 
     public Long getCommentId() {
         return commentId;

@@ -11,7 +11,8 @@ public class Vote {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "vote_id")
     private Long voteId;
-
+     @Column(name = "external_vote_id")
+    private Long externalVoteId;
     @Column(name = "post_id")
     private Long postId;  // 关联的帖子ID（问题或答案）
 
@@ -25,6 +26,15 @@ public class Vote {
     private LocalDateTime voteDate;  // 投票的时间
 
     // Getters 和 Setters
+
+    public Long getExternalVoteId() {
+        return externalVoteId;
+    }
+
+    public void setExternalVoteId(Long externalVoteId) {
+        this.externalVoteId = externalVoteId;
+    }
+
 
     public Long getVoteId() {
         return voteId;

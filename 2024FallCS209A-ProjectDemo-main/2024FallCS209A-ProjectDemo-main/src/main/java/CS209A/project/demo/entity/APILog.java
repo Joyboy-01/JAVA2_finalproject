@@ -11,7 +11,6 @@ public class APILog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "log_id")
     private Long logId;
-
     @Column(name = "user_id")
     private Long userId;
     @Column(name = "response", columnDefinition = "LONGTEXT")
@@ -20,7 +19,6 @@ public class APILog {
     private LocalDateTime timestamp;
 
     // Getters, Setters
-
     public String getResponse() {
         return response;
     }

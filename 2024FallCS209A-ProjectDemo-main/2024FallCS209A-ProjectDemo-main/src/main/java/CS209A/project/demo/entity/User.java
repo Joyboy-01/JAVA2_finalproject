@@ -11,7 +11,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long userId;
-
+    @Column(name = "external_user_id")
+    private Long externalUserId;
     private String username;
     private Integer reputation;
 
@@ -19,6 +20,15 @@ public class User {
     private LocalDateTime creationDate;
 
     // Getters, Setters
+
+    public Long getExternalUserId() {
+        return externalUserId;
+    }
+
+    public void setExternalUserId(Long externalUserId) {
+        this.externalUserId = externalUserId;
+    }
+
 
     public Long getUserId() {
         return userId;

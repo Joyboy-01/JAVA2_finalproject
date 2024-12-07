@@ -189,8 +189,6 @@ public class StackOverflowCrawler {
             }
 
             // 保存回答信息
-//            System.out.println(answerId);
-//            System.out.println(questionId);
             Answer answer = answerRepository.findById(answerId).orElse(new Answer());
 //            answer.setAnswerId(answerId);
             answer.setExternalAnswerId(answerId);
@@ -249,8 +247,9 @@ public class StackOverflowCrawler {
 
             // 保存评论信息
             Comment comment = commentRepository.findById(commentId).orElse(new Comment());
-            comment.setCommentId(commentId);
+//            comment.setCommentId(commentId);
             comment.setPostId(postId);
+            comment.setExternalCommentId(commentId);
             comment.setUserId(userId);
             comment.setContent(content);
             comment.setCreationDate(creationDate);
@@ -301,8 +300,9 @@ public class StackOverflowCrawler {
 
             // 保存投票信息
             Vote vote = voteRepository.findById(voteId).orElse(new Vote());
-            vote.setVoteId(voteId);
+//            vote.setVoteId(voteId);
             vote.setPostId(postId);
+            vote.setExternalVoteId(voteId);
             vote.setUserId(userId);
             vote.setVoteType(voteType);
             vote.setVoteDate(voteDate);
@@ -339,7 +339,8 @@ public class StackOverflowCrawler {
 
                 // 保存用户信息
                 User user = userRepository.findById(userId).orElse(new User());
-                user.setUserId(userId);
+//                user.setUserId(userId);
+                user.setExternalUserId(userId);
                 user.setUsername(username);
                 user.setReputation(reputation);
                 user.setCreationDate(userCreationDate);

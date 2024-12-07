@@ -21,7 +21,6 @@ public class CrawlerLauncher implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // 数据库表会自动在应用启动时清空并重建
         stackOverflowCrawler.collectData();
     }
 
