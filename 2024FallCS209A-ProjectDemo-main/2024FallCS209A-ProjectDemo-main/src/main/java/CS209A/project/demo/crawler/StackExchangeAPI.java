@@ -16,37 +16,40 @@ public class StackExchangeAPI {
     private final WebClient webClient;
     private static final Logger logger = Logger.getLogger(StackExchangeAPI.class.getName());
 
+    // 在这里你可以使用 API Key 进行请求
+    private static final String API_KEY = "rl_2FaCveFp4VUfzsdDDLjs9qyE1"; // 你的 API Key
+
     public StackExchangeAPI(WebClient.Builder builder) {
         this.webClient = builder.baseUrl("https://api.stackexchange.com/2.3").build();
     }
 
     public String fetchQuestions(int page) {
-        String url = "/questions?order=desc&sort=activity&tagged=java&site=stackoverflow&pagesize=100&page=" + page;
+        String url = "/questions?order=desc&sort=activity&tagged=java&site=stackoverflow&pagesize=100&page=" + page + "&key=" + API_KEY;
         return makeApiCall(url);
     }
 
     public String fetchAnswersForQuestion(Long questionId) {
-        String url = "/questions/" + questionId + "/answers?order=desc&sort=activity&site=stackoverflow&filter=withbody";
+        String url = "/questions/" + questionId + "/answers?order=desc&sort=activity&site=stackoverflow&filter=withbody&key=" + API_KEY;
         return makeApiCall(url);
     }
 
     public String fetchCommentsForQuestion(Long questionId) {
-        String url = "/questions/" + questionId + "/comments?order=desc&sort=creation&site=stackoverflow&filter=withbody";
+        String url = "/questions/" + questionId + "/comments?order=desc&sort=creation&site=stackoverflow&filter=withbody&key=" + API_KEY;
         return makeApiCall(url);
     }
 
     public String fetchVotesForQuestion(Long questionId) {
-        String url = "/questions/" + questionId + "/answers?order=desc&sort=creation&site=stackoverflow";
+        String url = "/questions/" + questionId + "/answers?order=desc&sort=creation&site=stackoverflow&key=" + API_KEY;
         return makeApiCall(url);
     }
 
     public String fetchVotes(Long postId) {
-        String url = "/answers/" + postId + "?site=stackoverflow";
+        String url = "/answers/" + postId + "?site=stackoverflow&key=" + API_KEY;
         return makeApiCall(url);
     }
 
     public String fetchUser(Long userId) {
-        String url = "/users/" + userId + "?site=stackoverflow";
+        String url = "/users/" + userId + "?site=stackoverflow&key=" + API_KEY;
         return makeApiCall(url);
     }
 
