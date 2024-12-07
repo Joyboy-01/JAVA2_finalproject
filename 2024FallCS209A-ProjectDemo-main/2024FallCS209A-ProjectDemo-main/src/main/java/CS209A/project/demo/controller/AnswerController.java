@@ -4,6 +4,7 @@ package CS209A.project.demo.controller;
 
 import CS209A.project.demo.service.AnswerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -38,4 +39,9 @@ public class AnswerController {
     public String getAnotherData() {
         return "Hello from another endpoint!";
     }
+    @GetMapping("/api/answer-quality")
+    public Map<String, Map<String, Long>> getAnswerQualityData() {
+        return answerService.getAllImpactData();
+    }
+
 }

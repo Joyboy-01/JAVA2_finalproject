@@ -32,145 +32,340 @@
     let topParticipatedPieChartInstance;
 
     // 动态获取饼图数据（Java 话题）
-    fetch('http://localhost:9091/answers/api/java-topics')  // 确保使用正确的 URL
-         .then(response => {
-            if (!response.ok) {
-                throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
-            }
-            return response.json();  // 直接解析为 JSON
-        })
-        .then(data => {
-            console.log('Fetched Data:', data);  // 在控制台查看返回的数据
+   fetch('http://localhost:9091/answers/api/java-topics')  // 确保使用正确的 URL
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+        }
+        return response.json();  // 直接解析为 JSON
+    })
+    .then(data => {
+        console.log('Fetched Data:', data);  // 在控制台查看返回的数据
 
-            if (typeof data !== 'object' || data === null) {
-                throw new Error('Invalid data format');
-            }
+        if (typeof data !== 'object' || data === null) {
+            throw new Error('Invalid data format');
+        }
 
-            const pieLabels = Object.keys(data);
-            const pieValues = Object.values(data);
+        // 确保返回的数据是按照主题和频率的键值对形式进行处理
+        const pieLabels = Object.keys(data);
+        const pieValues = Object.values(data);
 
-            // 如果图表已存在，销毁旧图表
-            if (pieChartInstance) {
-                pieChartInstance.destroy();
-            }
+        // 确认数据是否正确（每个 topic 的频率）
+        console.log('Labels:', pieLabels);
+        console.log('Values:', pieValues);
 
-            // 创建饼图
-            pieChartInstance = new Chart(document.getElementById('pieChart'), {
-                type: 'pie',
-                data: {
-                    labels: pieLabels,
-                    datasets: [{
-                        label: 'Java Topics Frequency',
-                        data: pieValues,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)',
-                            'rgba(255, 159, 64, 0.2)',
-                            'rgba(99, 255, 132, 0.2)',
-                            'rgba(132, 99, 255, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)',
-                            'rgba(99, 255, 132, 1)',
-                            'rgba(132, 99, 255, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Most Common Java Topics'
-                        }
+        // 如果图表已存在，销毁旧图表
+        if (pieChartInstance) {
+            pieChartInstance.destroy();
+        }
+
+        // 创建饼图
+        pieChartInstance = new Chart(document.getElementById('pieChart'), {
+            type: 'pie',
+            data: {
+                labels: pieLabels,
+                datasets: [{
+                    label: 'Java Topics Frequency',
+                    data: pieValues,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(99, 255, 132, 0.2)',
+                        'rgba(132, 99, 255, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(99, 255, 132, 1)',
+                        'rgba(132, 99, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Most Common Java Topics'
                     }
                 }
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching topic frequency data:', error);
-            alert('Failed to load data or render chart: ' + error. Message);  // 弹出错误提示
+            }
         });
+    })
+    .catch(error => {
+        console.error('Error fetching topic frequency data:', error);
+        alert('Failed to load data or render chart: ' + error.message);  // 弹出错误提示
+    });
 
 
-    fetch('http://localhost:9091/P2/getTopParticipatedTopics')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Top Participated Topics Data:', data);
-            if (typeof data !== 'object' || data === null) {
-                throw new Error('Invalid data format');
-            }
+fetch('http://localhost:9091/P2/getTopParticipatedTopics')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Top Participated Topics Data:', data);
+        if (typeof data !== 'object' || data === null) {
+            throw new Error('Invalid data format');
+        }
 
-            const pieLabels = Object.keys(data);
-            const pieValues = Object.values(data);
+        const pieLabels = Object.keys(data);
+        const pieValues = Object.values(data);
 
-            // 如果饼图实例已存在，销毁旧图表
-            if (topParticipatedPieChartInstance) {
-                topParticipatedPieChartInstance.destroy();
-            }
+        // 如果饼图实例已存在，销毁旧图表
+        if (topParticipatedPieChartInstance) {
+            topParticipatedPieChartInstance.destroy();
+        }
 
-            // 创建高参与度话题饼图
-            topParticipatedPieChartInstance = new Chart(document.getElementById('topParticipatedPieChart'), {
-                type: 'pie',
-                data: {
-                    labels: pieLabels,
-                    datasets: [{
-                        label: 'Top Participated Topics',
-                        data: pieValues,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Top Participated Topics'
-                        }
+        // 创建高参与度话题饼图
+        topParticipatedPieChartInstance = new Chart(document.getElementById('topParticipatedPieChart'), {
+            type: 'pie',
+            data: {
+                labels: pieLabels,
+                datasets: [{
+                    label: 'Top Participated Topics',
+                    data: pieValues,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Top Participated Topics'
                     }
                 }
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching top participated topics data:', error);
-            alert('Failed to load data or render chart: ' + error.message);
+            }
         });
+    })
+    .catch(error => {
+        console.error('Error fetching top participated topics data:', error);
+        alert('Failed to load data or render chart: ' + error.message);
+    });
 
+fetch('http://localhost:9091/answers/api/answer-quality')  // 确保使用正确的 URL
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+                }
+                return response.json();  // 直接解析为 JSON
+            })
+            .then(data => {
+                console.log('Answer Quality Data:', data);
 
+                // 用户声誉数据
+                const reputationData = data['用户声誉'];
+                const reputationLabels = Object.keys(reputationData);
+                const reputationValues = Object.values(reputationData);
+
+                // 如果图表已存在，销毁旧图表
+                if (reputationChartInstance) {
+                    reputationChartInstance.destroy();
+                }
+
+                // 创建用户声誉饼图
+                reputationChartInstance = new Chart(document.getElementById('reputationChart'), {
+                    type: 'pie',
+                    data: {
+                        labels: reputationLabels,
+                        datasets: [{
+                            data: reputationValues,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.6)',
+                                'rgba(54, 162, 235, 0.6)',
+                                'rgba(75, 192, 192, 0.6)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(75, 192, 192, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: '用户声誉对答案质量的影响'
+                            }
+                        }
+                    }
+                });
+
+                // 答案长度数据
+                const lengthData = data['答案长度'];
+                const lengthLabels = Object.keys(lengthData);
+                const lengthValues = Object.values(lengthData);
+
+                if (lengthChartInstance) {
+                    lengthChartInstance.destroy();
+                }
+
+                // 创建答案长度饼图
+                lengthChartInstance = new Chart(document.getElementById('lengthChart'), {
+                    type: 'pie',
+                    data: {
+                        labels: lengthLabels,
+                        datasets: [{
+                            data: lengthValues,
+                            backgroundColor: [
+                                'rgba(255, 206, 86, 0.6)',
+                                'rgba(75, 192, 192, 0.6)',
+                                'rgba(153, 102, 255, 0.6)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: '答案长度对答案质量的影响'
+                            }
+                        }
+                    }
+                });
+
+                // 答案得分数据
+                const scoreData = data['答案得分'];
+                const scoreLabels = Object.keys(scoreData);
+                const scoreValues = Object.values(scoreData);
+
+                if (scoreChartInstance) {
+                    scoreChartInstance.destroy();
+                }
+
+                // 创建答案得分饼图
+                scoreChartInstance = new Chart(document.getElementById('scoreChart'), {
+                    type: 'pie',
+                    data: {
+                        labels: scoreLabels,
+                        datasets: [{
+                            data: scoreValues,
+                            backgroundColor: [
+                                'rgba(255, 159, 64, 0.6)',
+                                'rgba(255, 99, 132, 0.6)',
+                                'rgba(54, 162, 235, 0.6)',
+                                'rgba(75, 192, 192, 0.6)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 159, 64, 1)',
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(75, 192, 192, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: '答案得分对答案质量的影响'
+                            }
+                        }
+                    }
+                });
+
+                // 评论数量数据
+                const commentData = data['评论数量'];
+                const commentLabels = Object.keys(commentData);
+                const commentValues = Object.values(commentData);
+
+                if (commentChartInstance) {
+                    commentChartInstance.destroy();
+                }
+
+                // 创建评论数量饼图
+                commentChartInstance = new Chart(document.getElementById('commentChart'), {
+                    type: 'pie',
+                    data: {
+                        labels: commentLabels,
+                        datasets: [{
+                            data: commentValues,
+                            backgroundColor: [
+                                'rgba(75, 192, 192, 0.6)',
+                                'rgba(54, 162, 235, 0.6)',
+                                'rgba(255, 206, 86, 0.6)',
+                                'rgba(153, 102, 255, 0.6)'
+                            ],
+                            borderColor: [
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(153, 102, 255, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: '评论数量对答案质量的影响'
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching answer quality data:', error);
+                alert('Failed to load answer quality data: ' + error.message);
+            });
 
 </script>
 

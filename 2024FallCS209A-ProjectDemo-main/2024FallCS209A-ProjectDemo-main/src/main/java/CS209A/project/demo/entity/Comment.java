@@ -15,16 +15,22 @@ public class Comment {
 
     @Column(name = "external_comment_id")
     private Long externalCommentId;
+
     @Column(name = "post_id")
     private Long postId;
 
     @Column(name = "user_id")
     private Long userId;
+
     @Column(name = "response",  columnDefinition = "TEXT")
     private String content;
 
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
+
+    @ManyToOne
+    @JoinColumn(name = "external_answer_id", referencedColumnName = "external_answer_id")
+    private Answer answer;
 
     // Getters, Setters
 
