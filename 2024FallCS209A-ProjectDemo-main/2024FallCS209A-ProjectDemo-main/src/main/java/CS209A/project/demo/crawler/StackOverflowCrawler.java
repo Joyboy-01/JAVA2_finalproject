@@ -62,7 +62,7 @@ public class StackOverflowCrawler {
                 processQuestions(questionsResponse);
 
                 // 控制爬取速度，避免被限流
-                Thread.sleep(3000);
+                Thread.sleep(2000);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -108,7 +108,8 @@ public class StackOverflowCrawler {
 
             // 保存问题信息
             Question question = questionRepository.findById(questionId).orElse(new Question());
-            question.setQuestionId(questionId);
+//            question.setQuestionId(questionId);
+            question.setExternalQuestionId(questionId);
             question.setTitle(title);
             question.setContent(content);
             question.setCreationDate(creationDate);
@@ -188,7 +189,8 @@ public class StackOverflowCrawler {
 
             // 保存回答信息
             Answer answer = answerRepository.findById(answerId).orElse(new Answer());
-            answer.setAnswerId(answerId);
+//            answer.setAnswerId(answerId);
+            answer.setExternalAnswerId(answerId);
             answer.setQuestionId(questionId);
             answer.setContent(content);
             answer.setCreationDate(creationDate);

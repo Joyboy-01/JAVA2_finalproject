@@ -11,6 +11,9 @@ public class Answer {
     @Column(name = "answer_id")
     private Long answerId;
 
+    @Column(name = "external_answer_Id")
+    private Long externalAnswerId;  // 外部 API 提供的 answer_id
+
     @Column(name = "question_id")
     private Long questionId;
     @Column(name = "content",  columnDefinition = "TEXT")
@@ -28,6 +31,14 @@ public class Answer {
     private Integer score;
 
     // Getters, Setters
+
+    public Long getExternalAnswerId() {
+        return externalAnswerId;
+    }
+
+    public void setExternalAnswerId(Long externalAnswerId) {
+        this.externalAnswerId = externalAnswerId;
+    }
 
     public Long getAnswerId() {
         return answerId;

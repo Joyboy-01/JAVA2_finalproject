@@ -10,6 +10,11 @@ public class Question {
     @Column(name = "question_id")
     private Long questionId;
 
+
+    @Column(name = "external_question_Id")
+    private Long externalQuestionId;  // 外部 API 提供的 question_id
+
+
     private String title;
     @Column(name = "content",  columnDefinition = "TEXT")
     private String content;
@@ -21,6 +26,15 @@ public class Question {
     private Long userId;
 
     // Getters, Setters
+
+
+    public Long getExternalQuestionId() {
+        return externalQuestionId;
+    }
+
+    public void setExternalQuestionId(Long externalQuestionId) {
+        this.externalQuestionId = externalQuestionId;
+    }
 
     public Long getQuestionId() {
         return questionId;
