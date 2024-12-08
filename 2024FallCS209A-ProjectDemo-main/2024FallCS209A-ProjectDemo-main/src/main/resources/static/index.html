@@ -16,15 +16,21 @@
 </head>
 <body>
 <!-- 直接显示饼图 -->
-<h2>Java Topics Pie Chart</h2>
+<h2>热门的话题</h2>
 <div id="pieChartContainer">
     <canvas id="pieChart" width="400" height="400"></canvas>
 </div>
 
 
-<h2>Top Participated Topics</h2>
+<h2>高声誉用户参与度高的话题</h2>
 <div id="topParticipatedPieChartContainer">
     <canvas id="topParticipatedPieChart" width="400" height="400"></canvas>
+</div>
+
+
+<h2>时间间隔对答案质量的影响</h2>
+<div id="timeIntervalChartContainer">
+    <canvas id="timeIntervalChart" width="300" height="300"></canvas>
 </div>
 
 <h2>用户声誉对答案质量的影响</h2>
@@ -54,6 +60,7 @@
     let lengthChartInstance;
     let scoreChartInstance;
     let commentChartInstance;
+    let timeIntervalChartInstance;
 
     // 动态获取饼图数据（Java 话题）
    fetch('http://localhost:9091/tags/getTopTags')  // 确保使用正确的 URL
@@ -89,7 +96,7 @@
             data: {
                 labels: pieLabels,
                 datasets: [{
-                    label: 'Java Topics Frequency',
+                    label: '话题频率',
                     data: pieValues,
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.2)',
@@ -122,7 +129,7 @@
                     },
                     title: {
                         display: true,
-                        text: 'Most Common Java Topics'
+                        text: '热门的话题'
                     }
                 }
             }
@@ -161,7 +168,7 @@ fetch('http://localhost:9091/P2/getTopParticipatedTopics')
             data: {
                 labels: pieLabels,
                 datasets: [{
-                    label: 'Top Participated Topics',
+                    label: '话题频率',
                     data: pieValues,
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.2)',
@@ -188,7 +195,7 @@ fetch('http://localhost:9091/P2/getTopParticipatedTopics')
                     },
                     title: {
                         display: true,
-                        text: 'Top Participated Topics'
+                        text: '高声誉用户参与度高的话题'
                     }
                 }
             }
@@ -385,6 +392,49 @@ fetch('http://localhost:9091/answers/api/answer-quality')
                     }
                 }
             });
+            const timeIntervalData = data['时间间隔'];
+        const timeIntervalLabels = Object.keys(timeIntervalData);
+        const timeIntervalValues = Object.values(timeIntervalData);
+
+        if (timeIntervalChartInstance) {
+            timeIntervalChartInstance.destroy();
+        }
+
+        // 创建时间间隔饼图
+        timeIntervalChartInstance = new Chart(document.getElementById('timeIntervalChart'), {
+            type: 'pie',
+            data: {
+                labels: timeIntervalLabels,
+                datasets: [{
+                    data: timeIntervalValues,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(255, 206, 86, 0.6)',
+                        'rgba(75, 192, 192, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: '时间间隔对答案质量的影响'
+                    }
+                }
+            }
+        });
         })
         .catch(error => {
             console.error('Error fetching answer quality data:', error);
