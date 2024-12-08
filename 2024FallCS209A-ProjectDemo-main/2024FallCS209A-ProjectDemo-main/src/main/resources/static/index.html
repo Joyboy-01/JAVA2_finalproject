@@ -32,7 +32,7 @@
     let topParticipatedPieChartInstance;
 
     // 动态获取饼图数据（Java 话题）
-   fetch('http://localhost:9091/answers/api/java-topics')  // 确保使用正确的 URL
+   fetch('http://localhost:9091/tags/getTopTags')  // 确保使用正确的 URL
     .then(response => {
         if (!response.ok) {
             throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
