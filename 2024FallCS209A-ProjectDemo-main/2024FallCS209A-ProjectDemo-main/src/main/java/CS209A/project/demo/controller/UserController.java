@@ -16,7 +16,7 @@ public class UserController {
 
     @GetMapping("/HighRe")
     public List<User> getUser() {
-        return service.getHighReputationUsers(100000);
+        return service.getHighReputationUsers(10000);
     }
 
 //    @GetMapping

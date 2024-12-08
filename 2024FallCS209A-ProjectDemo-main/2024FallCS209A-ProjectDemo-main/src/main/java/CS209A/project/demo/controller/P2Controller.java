@@ -38,7 +38,7 @@ public class P2Controller {
         int topN = 5;
 
         //获取高声誉用户
-        List<User> highReputationUsers = userService.getHighReputationUsers(100000);
+        List<User> highReputationUsers = userService.getHighReputationUsers(10000);
 
         // 获取所有高声誉用户的活动
         List<Answer> highReputationAnswers = answerService.getHighReputationAnswers(highReputationUsers);
