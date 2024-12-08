@@ -33,33 +33,33 @@ public class AnswerService {
     public Long getCommentCountForAnswer(Long answerId) {
         return commentRepository.countByAnswer_ExternalAnswerId(answerId);
     }
-    /**
-     * 获取最常见的 Java 编程相关话题及其频次
-     * @param topN 要返回的最常见话题数量
-     * @return 一个 Map，其中键是话题名称，值是频次
-     */
-    public Map<String, Integer> getTopJavaTopics(int topN) {
-        List<Answer> answers = answerRepository.findAll();
-
-        return answers.stream()
-                .filter(answer -> answer.getContent() != null && answer.getContent().contains("Java"))
-                .map(answer -> {
-                    String content = answer.getContent();
-                    // 安全地提取内容地前20个字符作为话题
-                    return content.length() > 20 ? content.substring(0, 20) : content;
-                })
-                .collect(Collectors.groupingBy(topic -> topic, Collectors.reducing(0, e -> 1, Integer::sum)))
-                .entrySet()
-                .stream()
-                .sorted((e1, e2) -> Integer.compare(e2.getValue(), e1.getValue()))
-                .limit(topN)
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (e1, e2) -> e1,
-                        LinkedHashMap::new
-                ));
-    }
+//    /**
+//     * 获取最常见的 Java 编程相关话题及其频次
+//     * @param topN 要返回的最常见话题数量
+//     * @return 一个 Map，其中键是话题名称，值是频次
+//     */
+//    public Map<String, Integer> getTopJavaTopics(int topN) {
+//        List<Answer> answers = answerRepository.findAll();
+//
+//        return answers.stream()
+//                .filter(answer -> answer.getContent() != null && answer.getContent().contains("Java"))
+//                .map(answer -> {
+//                    String content = answer.getContent();
+//                    // 安全地提取内容地前20个字符作为话题
+//                    return content.length() > 20 ? content.substring(0, 20) : content;
+//                })
+//                .collect(Collectors.groupingBy(topic -> topic, Collectors.reducing(0, e -> 1, Integer::sum)))
+//                .entrySet()
+//                .stream()
+//                .sorted((e1, e2) -> Integer.compare(e2.getValue(), e1.getValue()))
+//                .limit(topN)
+//                .collect(Collectors.toMap(
+//                        Map.Entry::getKey,
+//                        Map.Entry::getValue,
+//                        (e1, e2) -> e1,
+//                        LinkedHashMap::new
+//                ));
+//    }
 
     /**
      * 获取所有答案
@@ -81,34 +81,52 @@ public class AnswerService {
     public List<Answer> getAllAnswers() {
         return answerRepository.findAll();
     }
-    // 分析时间间隔对答案质量的影响
+
+
     public Map<String, Long> analyzeTimeIntervalImpact() {
+        // 预先加载所有问题的创建时间
+        Map<Long, LocalDateTime> questionCreationDates = questionRepository.findAll().stream()
+                .collect(Collectors.toMap(Question::getExternalQuestionId, Question::getCreationDate));
+
         return answerRepository.findAll().stream()
                 .map(answer -> {
                     Long questionId = answer.getQuestionId();
-                    return questionRepository.findById(questionId)
-                            .map(question -> Duration.between(question.getCreationDate(), answer.getCreationDate()).toMinutes())
-                            .map(minutes -> {
-                                if (minutes < 10) return "0-10分钟";
-                                else if (minutes < 30) return "10-30分钟";
-                                else if (minutes < 60) return "30-60分钟";
-                                else return "超过60分钟";
-                            }).orElse(null); // 如果没有找到问题, 返回 null
+                    LocalDateTime questionCreationDate = questionCreationDates.get(questionId);
+                    if (questionCreationDate != null) {
+                        long minutes = Duration.between(questionCreationDate, answer.getCreationDate()).toMinutes();
+                        if (minutes < 10) return "0-10分钟";
+                        else if (minutes < 30) return "10-30分钟";
+                        else if (minutes < 60) return "30-60分钟";
+                        else return "超过60分钟";
+                    }
+                    System.out.println("No question found for answer: " + answer.getExternalAnswerId()); // 调试输出
+                    return null; // 如果没有找到问题, 返回 null
                 })
                 .filter(Objects::nonNull) // 过滤掉 null
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())); // 统计每个区间的数量
     }
 
-    // 分析用户声誉对答案质量的影响
     public Map<String, Long> analyzeUserReputationImpact() {
+        // 预先加载所有用户的声誉数据
+        Map<Long, Integer> userReputations = userRepository.findAll().stream()
+                .collect(Collectors.toMap(
+                        User::getExternalUserId,
+                        User::getReputation,
+                        (existing, replacement) -> Math.max(existing, replacement))); // 选择较大的值
+
         return answerRepository.findAll().stream()
-                .map(answer -> userRepository.findById(answer.getUserId())
-                        .map(user -> {
-                            int reputation = user.getReputation();
-                            if (reputation < 100) return "低声誉 (<100)";
-                            else if (reputation < 500) return "中声誉 (100-499)";
-                            else return "高声誉 (≥500)";
-                        }).orElse(null)) // 如果没有找到用户, 返回 null
+                .filter(answer -> answer.getUserId() != null) // 过滤掉 userId 为 null 的 Answer
+                .map(answer -> {
+                    Long userId = answer.getUserId();
+                    Integer reputation = userReputations.get(userId);
+                    if (reputation != null) {
+                        if (reputation < 100) return "低声誉 (<100)";
+                        else if (reputation < 500) return "中声誉 (100-499)";
+                        else return "高声誉 (≥500)";
+                    }
+                    System.out.println("No user found for answer: " + answer.getExternalAnswerId()); // 调试输出
+                    return null; // 如果没有找到用户, 返回 null
+                })
                 .filter(Objects::nonNull) // 过滤掉 null
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())); // 统计每种声誉的数量
     }
@@ -129,7 +147,7 @@ public class AnswerService {
     public Map<String, Long> analyzeCommentCountImpact() {
         return answerRepository.findAll().stream()
                 .map(answer -> {
-                    Long commentCount = getCommentCountForAnswer(answer.getAnswerId());
+                    Long commentCount = getCommentCountForAnswer(answer.getExternalAnswerId());
                     if (commentCount == 0) return "无评论";
                     else if (commentCount <= 2) return "少量评论 (1-2)";
                     else if (commentCount <= 5) return "中等评论 (3-5)";
@@ -153,7 +171,6 @@ public class AnswerService {
     }
 
 
-    // 综合所有因素进行分析
     public Map<String, Map<String, Long>> getAllImpactData() {
         Map<String, Map<String, Long>> allData = new HashMap<>();
         allData.put("时间间隔", analyzeTimeIntervalImpact());

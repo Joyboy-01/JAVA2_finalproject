@@ -105,10 +105,7 @@ public class Answer {
         this.questionId = questionId;
     }
 
-    public Integer getContentLength() {
-        if (content != null) {
-            return content.length();
-        }
-        return 0;
+    public int getContentLength() {
+        return (content != null) ? content.length() : 0;
     }
 }

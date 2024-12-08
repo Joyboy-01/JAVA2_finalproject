@@ -21,15 +21,15 @@ public class AnswerController {
         this.answerService = service;
     }
 
-    /**
-     * 获取最常见的 Java 编程相关话题及其频次
-     * @param topN 要返回的最常见话题数量，默认为5
-     * @return 一个 Map，其中键是话题名称，值是频次
-     */
-    @GetMapping("/api/java-topics")
-    public Map<String, Integer> getTopJavaTopics(@RequestParam(defaultValue = "5") int topN) {
-        return answerService.getTopJavaTopics(topN);
-    }
+//    /**
+//     * 获取最常见的 Java 编程相关话题及其频次
+//     * @param topN 要返回的最常见话题数量，默认为5
+//     * @return 一个 Map，其中键是话题名称，值是频次
+//     */
+//    @GetMapping("/api/java-topics")
+//    public Map<String, Integer> getTopJavaTopics(@RequestParam(defaultValue = "5") int topN) {
+//        return answerService.getTopJavaTopics(topN);
+//    }
 
     /**
      * 另一个示例接口
