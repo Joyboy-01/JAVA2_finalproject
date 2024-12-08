@@ -25,7 +25,7 @@ public class TestController {
 
     @GetMapping("/1")
     public List<Answer> getHighReputationAnswers() {
-        List<User> highReputationUsers = userService.getHighReputationUsers(100000);
+        List<User> highReputationUsers = userService.getHighReputationUsers(10000);
         return answerService.getHighReputationAnswers(highReputationUsers);
     }
 }
