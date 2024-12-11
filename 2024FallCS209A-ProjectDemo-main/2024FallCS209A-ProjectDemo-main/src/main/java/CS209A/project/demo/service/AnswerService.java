@@ -85,9 +85,13 @@ public class AnswerService {
 
     public Map<String, Long> analyzeTimeIntervalImpact() {
         // 预先加载所有问题的创建时间
+//        Map<Long, LocalDateTime> questionCreationDates = questionRepository.findAll().stream()
+//                .collect(Collectors.toMap(Question::getExternalQuestionId, Question::getCreationDate));
         Map<Long, LocalDateTime> questionCreationDates = questionRepository.findAll().stream()
-                .collect(Collectors.toMap(Question::getExternalQuestionId, Question::getCreationDate));
-
+                .collect(Collectors.toMap(
+                        Question::getExternalQuestionId,
+                        Question::getCreationDate,
+                        (existing, replacement) -> existing));
         return answerRepository.findAll().stream()
                 .map(answer -> {
                     Long questionId = answer.getQuestionId();

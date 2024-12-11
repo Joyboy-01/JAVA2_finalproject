@@ -1,6 +1,7 @@
 package CS209A.project.demo.controller;
 
 import CS209A.project.demo.entity.QuestionTag;
+import CS209A.project.demo.service.ErrorAnalysisService;
 import CS209A.project.demo.service.QuestionTagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,9 +19,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/restful")
 public class RESTfulController {
     private final QuestionTagService questionTagService;
+    private final ErrorAnalysisService errorAnalysisService;
     @Autowired
-    public RESTfulController(QuestionTagService service) {
+    public RESTfulController(QuestionTagService service, ErrorAnalysisService errorAnalysisService) {
         this.questionTagService = service;
+        this.errorAnalysisService = errorAnalysisService;
     }
 
     @GetMapping("/1")
@@ -72,6 +75,16 @@ public class RESTfulController {
                         (e1, e2) -> e1,  // 如果有重复的键，选择第一个
                         LinkedHashMap::new  // 保证顺序
                 ));
+    }
+
+    @GetMapping("/3")
+    public Map<String, Integer> countErrorByName(@RequestParam String errorName) {
+        return errorAnalysisService.countErrorByName(errorName);
+    }
+
+    @GetMapping("/4")
+    public Map<String, Integer> geterrors(@RequestParam(defaultValue = "5") int topN) {
+        return errorAnalysisService.countErrorsByType(topN);
     }
 
 

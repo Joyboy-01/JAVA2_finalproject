@@ -11,14 +11,14 @@ public class Answer {
     @Column(name = "answer_id")
     private Long answerId;
 
-    @Column(name = "external_answer_Id", unique = true)
+    @Column(name = "external_answer_Id")//, unique = true)
     private Long externalAnswerId;  // 外部 API 提供的 answer_id
 
     @Column(name = "question_id")
     private Long questionId;
 
     @ManyToOne
-    @JoinColumn(name = "external_question_id", insertable = false, updatable = false)
+    @JoinColumn(name = "external_question_id", insertable = false, updatable = false,unique = true)
     private Question question;
 
     @Column(name = "content",  columnDefinition = "TEXT")
