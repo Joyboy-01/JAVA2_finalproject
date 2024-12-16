@@ -33,34 +33,6 @@ public class AnswerService {
     public Long getCommentCountForAnswer(Long answerId) {
         return commentRepository.countByAnswer_ExternalAnswerId(answerId);
     }
-//    /**
-//     * 获取最常见的 Java 编程相关话题及其频次
-//     * @param topN 要返回的最常见话题数量
-//     * @return 一个 Map，其中键是话题名称，值是频次
-//     */
-//    public Map<String, Integer> getTopJavaTopics(int topN) {
-//        List<Answer> answers = answerRepository.findAll();
-//
-//        return answers.stream()
-//                .filter(answer -> answer.getContent() != null && answer.getContent().contains("Java"))
-//                .map(answer -> {
-//                    String content = answer.getContent();
-//                    // 安全地提取内容地前20个字符作为话题
-//                    return content.length() > 20 ? content.substring(0, 20) : content;
-//                })
-//                .collect(Collectors.groupingBy(topic -> topic, Collectors.reducing(0, e -> 1, Integer::sum)))
-//                .entrySet()
-//                .stream()
-//                .sorted((e1, e2) -> Integer.compare(e2.getValue(), e1.getValue()))
-//                .limit(topN)
-//                .collect(Collectors.toMap(
-//                        Map.Entry::getKey,
-//                        Map.Entry::getValue,
-//                        (e1, e2) -> e1,
-//                        LinkedHashMap::new
-//                ));
-//    }
-
     /**
      * 获取所有答案
      * @return 所有答案的列表
@@ -83,105 +55,173 @@ public class AnswerService {
     }
 
 
-    public Map<String, Long> analyzeTimeIntervalImpact() {
-        // 预先加载所有问题的创建时间
-//        Map<Long, LocalDateTime> questionCreationDates = questionRepository.findAll().stream()
-//                .collect(Collectors.toMap(Question::getExternalQuestionId, Question::getCreationDate));
+    public Map<String, Double> analyzeTimeIntervalAcceptanceRate() {
         Map<Long, LocalDateTime> questionCreationDates = questionRepository.findAll().stream()
                 .collect(Collectors.toMap(
                         Question::getExternalQuestionId,
                         Question::getCreationDate,
-                        (existing, replacement) -> existing));
-        return answerRepository.findAll().stream()
-                .map(answer -> {
-                    Long questionId = answer.getQuestionId();
-                    LocalDateTime questionCreationDate = questionCreationDates.get(questionId);
-                    if (questionCreationDate != null) {
-                        long minutes = Duration.between(questionCreationDate, answer.getCreationDate()).toMinutes();
-                        if (minutes < 10) return "0-10分钟";
-                        else if (minutes < 30) return "10-30分钟";
-                        else if (minutes < 60) return "30-60分钟";
-                        else return "超过60分钟";
-                    }
-                    System.out.println("No question found for answer: " + answer.getExternalAnswerId()); // 调试输出
-                    return null; // 如果没有找到问题, 返回 null
-                })
-                .filter(Objects::nonNull) // 过滤掉 null
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())); // 统计每个区间的数量
+                        (existing, replacement) -> existing)
+                );
+
+        Map<String, Long> totalCounts = new HashMap<>();
+        Map<String, Long> acceptedCounts = new HashMap<>();
+
+        answerRepository.findAll().forEach(answer -> {
+            Long questionId = answer.getQuestionId();
+            LocalDateTime questionCreationDate = questionCreationDates.get(questionId);
+            if (questionCreationDate != null) {
+                long minutes = Duration.between(questionCreationDate, answer.getCreationDate()).toMinutes();
+                String category;
+                if (minutes < 10) category = "0-10分钟";
+                else if (minutes < 30) category = "10-30分钟";
+                else if (minutes < 60) category = "30-60分钟";
+                else category = "超过60分钟";
+
+                totalCounts.put(category, totalCounts.getOrDefault(category, 0L) + 1);
+                if (Boolean.TRUE.equals(answer.getAccepted())) {
+                    acceptedCounts.put(category, acceptedCounts.getOrDefault(category, 0L) + 1);
+                }
+            }
+        });
+
+        Map<String, Double> acceptanceRates = new HashMap<>();
+        for (String category : totalCounts.keySet()) {
+            long total = totalCounts.get(category);
+            long accepted = acceptedCounts.getOrDefault(category, 0L);
+            double rate = total > 0 ? (double) accepted / total : 0.0;
+            acceptanceRates.put(category, rate);
+        }
+
+        return acceptanceRates;
     }
 
-    public Map<String, Long> analyzeUserReputationImpact() {
-        // 预先加载所有用户的声誉数据
+
+    public Map<String, Double> analyzeUserReputationAcceptanceRate() {
         Map<Long, Integer> userReputations = userRepository.findAll().stream()
                 .collect(Collectors.toMap(
                         User::getExternalUserId,
                         User::getReputation,
-                        (existing, replacement) -> Math.max(existing, replacement))); // 选择较大的值
+                        (existing, replacement) -> Math.max(existing, replacement)));
 
-        return answerRepository.findAll().stream()
-                .filter(answer -> answer.getUserId() != null) // 过滤掉 userId 为 null 的 Answer
-                .map(answer -> {
-                    Long userId = answer.getUserId();
-                    Integer reputation = userReputations.get(userId);
-                    if (reputation != null) {
-                        if (reputation < 100) return "低声誉 (<100)";
-                        else if (reputation < 500) return "中声誉 (100-499)";
-                        else return "高声誉 (≥500)";
-                    }
-                    System.out.println("No user found for answer: " + answer.getExternalAnswerId()); // 调试输出
-                    return null; // 如果没有找到用户, 返回 null
-                })
-                .filter(Objects::nonNull) // 过滤掉 null
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())); // 统计每种声誉的数量
+        Map<String, Long> totalCounts = new HashMap<>();
+        Map<String, Long> acceptedCounts = new HashMap<>();
+
+        answerRepository.findAll().forEach(answer -> {
+            Long userId = answer.getUserId();
+            if (userId != null) {
+                Integer reputation = userReputations.get(userId);
+                String category;
+                if (reputation == null) {
+                    category = "未知声誉";
+                } else if (reputation < 100) {
+                    category = "低声誉 (<100)";
+                } else if (reputation < 500) {
+                    category = "中声誉 (100-499)";
+                } else {
+                    category = "高声誉 (≥500)";
+                }
+
+                totalCounts.put(category, totalCounts.getOrDefault(category, 0L) + 1);
+                if (Boolean.TRUE.equals(answer.getAccepted())) {
+                    acceptedCounts.put(category, acceptedCounts.getOrDefault(category, 0L) + 1);
+                }
+            }
+        });
+
+        return calculateAcceptanceRate(totalCounts, acceptedCounts);
+    }
+
+    private Map<String, Double> calculateAcceptanceRate(Map<String, Long> totalCounts, Map<String, Long> acceptedCounts) {
+        Map<String, Double> acceptanceRates = new HashMap<>();
+        for (String category : totalCounts.keySet()) {
+            long total = totalCounts.get(category);
+            long accepted = acceptedCounts.getOrDefault(category, 0L);
+            double rate = total > 0 ? (double) accepted / total : 0.0;
+            acceptanceRates.put(category, rate);
+        }
+        return acceptanceRates;
     }
 
     // 分析内容长度对答案质量的影响
-    public Map<String, Long> analyzeContentLengthImpact() {
-        return answerRepository.findAll().stream()
-                .map(answer -> {
-                    int length = answer.getContentLength();
-                    if (length < 100) return "短答案 (<100字)";
-                    else if (length < 300) return "中等长度 (100-299字)";
-                    else return "长答案 (≥300字)";
-                })
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())); // 统计每个长度区间的数量
+    public Map<String, Double> analyzeContentLengthAcceptanceRate() {
+        Map<String, Long> totalCounts = new HashMap<>();
+        Map<String, Long> acceptedCounts = new HashMap<>();
+
+        answerRepository.findAll().forEach(answer -> {
+            int length = answer.getContentLength();
+            String category;
+            if (length < 100) {
+                category = "短答案 (<100字)";
+            } else if (length < 300) {
+                category = "中等长度 (100-299字)";
+            } else {
+                category = "长答案 (≥300字)";
+            }
+
+            totalCounts.put(category, totalCounts.getOrDefault(category, 0L) + 1);
+            if (Boolean.TRUE.equals(answer.getAccepted())) {
+                acceptedCounts.put(category, acceptedCounts.getOrDefault(category, 0L) + 1);
+            }
+        });
+
+        return calculateAcceptanceRate(totalCounts, acceptedCounts);
     }
+
 
     // 获取评论数量对答案质量的影响
-    public Map<String, Long> analyzeCommentCountImpact() {
-        return answerRepository.findAll().stream()
-                .map(answer -> {
-                    Long commentCount = getCommentCountForAnswer(answer.getExternalAnswerId());
-                    if (commentCount == 0) return "无评论";
-                    else if (commentCount <= 2) return "少量评论 (1-2)";
-                    else if (commentCount <= 5) return "中等评论 (3-5)";
-                    else return "大量评论 (>5)";
-                })
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())); // 统计每个评论数量区间的数量
+    public Map<String, Double> analyzeCommentCountAcceptanceRate() {
+        Map<String, Long> totalCounts = new HashMap<>();
+        Map<String, Long> acceptedCounts = new HashMap<>();
+
+        answerRepository.findAll().forEach(answer -> {
+            Long commentCount = getCommentCountForAnswer(answer.getExternalAnswerId());
+            String category;
+            if (commentCount == 0) category = "无评论";
+            else if (commentCount <= 2) category = "少量评论 (1-2)";
+            else if (commentCount <= 5) category = "中等评论 (3-5)";
+            else category = "大量评论 (>5)";
+
+            totalCounts.put(category, totalCounts.getOrDefault(category, 0L) + 1);
+            if (Boolean.TRUE.equals(answer.getAccepted())) {
+                acceptedCounts.put(category, acceptedCounts.getOrDefault(category, 0L) + 1);
+            }
+        });
+
+        return calculateAcceptanceRate(totalCounts, acceptedCounts);
     }
+
 
     // 获取答案得分对答案质量的影响
-    public Map<String, Long> analyzeScoreImpact() {
-        return answerRepository.findAll().stream()
-                .map(answer -> {
-                    Integer score = answer.getScore();
-                    if (score == null) return "未评分";
-                    else if (score < 0) return "负评分 (<0)";
-                    else if (score == 0) return "中性评分 (0)";
-                    else if (score <= 10) return "低评分 (1-10)";
-                    else return "高评分 (>10)";
-                })
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())); // 统计每个评分区间的数量
+    public Map<String, Double> analyzeScoreAcceptanceRate() {
+        Map<String, Long> totalCounts = new HashMap<>();
+        Map<String, Long> acceptedCounts = new HashMap<>();
+
+        answerRepository.findAll().forEach(answer -> {
+            Integer score = answer.getScore();
+            String category;
+            if (score == null) category = "未评分";
+            else if (score < 0) category = "负评分 (<0)";
+            else if (score == 0) category = "中性评分 (0)";
+            else if (score <= 10) category = "低评分 (1-10)";
+            else category = "高评分 (>10)";
+
+            totalCounts.put(category, totalCounts.getOrDefault(category, 0L) + 1);
+            if (Boolean.TRUE.equals(answer.getAccepted())) {
+                acceptedCounts.put(category, acceptedCounts.getOrDefault(category, 0L) + 1);
+            }
+        });
+
+        return calculateAcceptanceRate(totalCounts, acceptedCounts);
     }
 
 
-    public Map<String, Map<String, Long>> getAllImpactData() {
-        Map<String, Map<String, Long>> allData = new HashMap<>();
-        allData.put("时间间隔", analyzeTimeIntervalImpact());
-        allData.put("用户声誉", analyzeUserReputationImpact());
-        allData.put("答案长度", analyzeContentLengthImpact());
-        allData.put("答案得分", analyzeScoreImpact());
-        allData.put("评论数量", analyzeCommentCountImpact());
+    public Map<String, Map<String, Double>> getAllImpactData() {
+        Map<String, Map<String, Double>> allData = new HashMap<>();
+        allData.put("时间间隔", analyzeTimeIntervalAcceptanceRate());
+        allData.put("用户声誉", analyzeUserReputationAcceptanceRate());
+        allData.put("答案长度", analyzeContentLengthAcceptanceRate());
+        allData.put("答案得分", analyzeScoreAcceptanceRate());
+        allData.put("评论数量", analyzeCommentCountAcceptanceRate());
         return allData;
     }
 }
