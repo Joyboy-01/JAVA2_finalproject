@@ -114,6 +114,35 @@ public class ErrorAnalysisService {
     }
 
 
+    public Map<String, Integer> countExceptionByName(@RequestParam String errorName) {
+        // 获取所有答案、问题和评论
+        List<Answer> answers = answerRepository.findAll();
+        List<Question> questions = questionRepository.findAll();
+        List<Comment> comments = commentRepository.findAll();
+
+        // 用于存储每种错误类型及其出现次数
+        Map<String, Integer> errorCounts = new HashMap<>();
+        Pattern pattern = Pattern.compile(EXCEPTION_REGEX, Pattern.CASE_INSENSITIVE);
+
+        // 统计Answer的content中的错误
+        answers.forEach(answer -> countErrorTypes(answer.getContent(), pattern, errorCounts));
+
+        // 统计Question的title中的错误
+        questions.forEach(question -> countErrorTypes(question.getTitle(), pattern, errorCounts));
+
+        // 统计Comment的response中的错误
+        comments.forEach(comment -> countErrorTypes(comment.getContent(), pattern, errorCounts));
+
+        // 返回指定错误类型的出现次数，如果没有找到则返回0
+        Map<String, Integer> result = new HashMap<>();
+        result.put(errorName, errorCounts.getOrDefault(errorName, 0));
+
+        return result;
+    }
+
+
+
+
     // 判断文本中是否包含错误，并更新错误计数
     private void countErrorTypes(String text, Pattern pattern, Map<String, Integer> errorCounts) {
         if (text == null || text.isEmpty()) {

@@ -87,6 +87,14 @@ public class RESTfulController {
         return errorAnalysisService.countErrorsByType(topN);
     }
 
+    @GetMapping("/5")
+    public Map<String, Integer> countExceptionByName(@RequestParam String exceptionName) {
+        return errorAnalysisService.countExceptionByName(exceptionName);
+    }
 
 
+    @GetMapping("/6")
+    public Map<String, Integer> countExceptionByType(@RequestParam(defaultValue = "5") int topN) {
+        return errorAnalysisService.countExceptionByType(topN);
+    }
 }
